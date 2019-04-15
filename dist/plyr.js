@@ -2661,7 +2661,9 @@ typeof navigator === "object" && (function (global, factory) {
       } else if (is$1.keyboardEvent(input) && input.which === 27) {
         show = false;
       } else if (is$1.event(input)) {
-        var isMenuItem = popup.contains(input.target); // If the click was inside the menu or if the click
+        // If Plyr is in a shadowDOM, the event target is set to the component, instead of the
+        // element in the shadowDOM. The path, however, is complete.
+        var isMenuItem = popup.contains(input.path[0]); // If the click was inside the menu or if the click
         // wasn't the button or menu item and we're trying to
         // show the menu (a doc click shouldn't show the menu)
 
@@ -2708,7 +2710,7 @@ typeof navigator === "object" && (function (global, factory) {
 
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       var tabFocus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-      var target = document.getElementById("plyr-settings-".concat(this.id, "-").concat(type)); // Nothing to show, bail
+      var target = this.elements.container.querySelector("#plyr-settings-".concat(this.id, "-").concat(type)); // Nothing to show, bail
 
       if (!is$1.element(target)) {
         return;
