@@ -4748,7 +4748,7 @@ typeof navigator === "object" && (function () {
 	    return Array.from(document.querySelectorAll(selector)).includes(this);
 	  }
 
-	  var matches = match;
+	  var matches = element.matches || element.webkitMatchesSelector || element.mozMatchesSelector || element.msMatchesSelector || match;
 	  return matches.call(element, selector);
 	} // Find all elements
 
@@ -6512,8 +6512,9 @@ typeof navigator === "object" && (function () {
 	      show = false;
 	    } else if (is$1.event(input)) {
 	      // If Plyr is in a shadowDOM, the event target is set to the component, instead of the
-	      // element in the shadowDOM. The path, however, is complete.
-	      var isMenuItem = popup.contains(input.path[0]); // If the click was inside the menu or if the click
+	      // element in the shadowDOM. The path, if available, is complete.
+	      var target = typeof input.composedPath === 'function' ? input.composedPath()[0] : input.target;
+	      var isMenuItem = popup.contains(target); // If the click was inside the menu or if the click
 	      // wasn't the button or menu item and we're trying to
 	      // show the menu (a doc click shouldn't show the menu)
 
@@ -6606,13 +6607,13 @@ typeof navigator === "object" && (function () {
 
 	    controls.focusFirstMenuItem.call(this, target, tabFocus);
 	  },
-	  // Set the download link
-	  setDownloadLink: function setDownloadLink() {
+	  // Set the download URL
+	  setDownloadUrl: function setDownloadUrl() {
 	    var button = this.elements.buttons.download; // Bail if no button
 
 	    if (!is$1.element(button)) {
 	      return;
-	    } // Set download link
+	    } // Set attribute
 
 
 	    button.setAttribute('href', this.download);
@@ -8802,7 +8803,7 @@ typeof navigator === "object" && (function () {
 	      }); // Update download link when ready and if quality changes
 
 	      on.call(player, player.media, 'ready qualitychange', function () {
-	        controls.setDownloadLink.call(player);
+	        controls.setDownloadUrl.call(player);
 	      }); // Proxy events to container
 	      // Bubble up key events for Edge
 
@@ -9448,13 +9449,13 @@ typeof navigator === "object" && (function () {
 	    // Add embed class for responsive
 	    toggleClass(this.elements.wrapper, this.config.classNames.embed, true); // Set intial ratio
 
-	    setAspectRatio.call(this); // Load the API if not already
+	    setAspectRatio.call(this); // Load the SDK if not already
 
 	    if (!is$1.object(window.Vimeo)) {
 	      loadScript(this.config.urls.vimeo.sdk).then(function () {
 	        vimeo.ready.call(_this);
 	      }).catch(function (error) {
-	        _this.debug.warn('Vimeo API failed to load', error);
+	        _this.debug.warn('Vimeo SDK (player.js) failed to load', error);
 	      });
 	    } else {
 	      vimeo.ready.call(this);
@@ -9633,7 +9634,7 @@ typeof navigator === "object" && (function () {
 	    var currentSrc;
 	    player.embed.getVideoUrl().then(function (value) {
 	      currentSrc = value;
-	      controls.setDownloadLink.call(player);
+	      controls.setDownloadUrl.call(player);
 	    }).catch(function (error) {
 	      _this2.debug.warn(error);
 	    });
@@ -12654,6 +12655,18 @@ typeof navigator === "object" && (function () {
 	    get: function get() {
 	      var download = this.config.urls.download;
 	      return is$1.url(download) ? download : this.source;
+	    }
+	    /**
+	     * Set the download URL
+	     */
+	    ,
+	    set: function set(input) {
+	      if (!is$1.url(input)) {
+	        return;
+	      }
+
+	      this.config.urls.download = input;
+	      controls.setDownloadUrl.call(this);
 	    }
 	    /**
 	     * Set the poster image for a video
