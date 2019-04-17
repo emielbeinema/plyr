@@ -8380,7 +8380,7 @@ typeof navigator === "object" && (function (global, factory) {
       } else if (is$1.event(input)) {
         // If Plyr is in a shadowDOM, the event target is set to the component, instead of the
         // element in the shadowDOM. The path, if available, is complete.
-        var target = typeof input.composedPath === 'function' ? input.composedPath()[0] : input.target;
+        var target = is$1.function(input.composedPath) ? input.composedPath()[0] : input.target;
         var isMenuItem = popup.contains(target); // If the click was inside the menu or if the click
         // wasn't the button or menu item and we're trying to
         // show the menu (a doc click shouldn't show the menu)
